@@ -1,3 +1,7 @@
+#-------------------------------------------
+# Seguindo a parte 1 da atividade ECommerce
+#-------------------------------------------
+
 from sqlmodel import SQLModel, Field, create_engine, Relationship
 from datetime import datetime
 from decimal import Decimal
