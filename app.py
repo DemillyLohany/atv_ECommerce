@@ -2,7 +2,6 @@
 
 #-------------------------------------------
 # Seguindo a parte 2 da atividade ECommerce
-#-------------------------------------------
 
 from database import create_db, get_session
 from fastapi import FastAPI, Depends, Form, HTTPException
@@ -11,7 +10,8 @@ from sqlmodel import Session
 from contextlib import asynccontextmanager
 from sqlmodel import select
 from model import Usuarios, Produtos, Tarefa, Categorias, \
-Pedidos, Pagamentos, Enderecos, Avaliacoes, Estoque
+Pedidos, Pagamentos, Enderecos, Avaliacoes, Estoque, UsuarioCriar, UsuarioLista
+ 
 
 SessionDep = Annotated[Session,Depends(get_session)]
 
@@ -24,7 +24,6 @@ app = FastAPI(lifespan=lifespan)
 
 # -----------------------
 # CRUD das tarefas
-# -----------------------
 
 @app.get("/tarefas")
 def listar_tarefas(session: SessionDep) -> list[Tarefa]:
@@ -62,19 +61,27 @@ def deletar_tarefas (id:int, session:SessionDep):
 
 # -----------------------
 # CRUD dos usuários
-# -----------------------
 
-@app.get("/usuarios")
-def listar_usu(session: SessionDep) -> list[Usuarios]:
-    lista = session.exec(select(Usuarios)).all() 
-    return list(lista)
+@app.get("/usuarios", response_model=list[UsuarioLista])
+def listar_usu(session: SessionDep):
+    return session.exec(select(Usuarios)).all()
 
-@app.post('/usuarios')
-def cadastrar_usu(usuario: Usuarios, session:SessionDep ) -> Usuarios:
-    session.add(usuario)
+# @app.post('/usuarios')
+# def cadastrar_usu(usuario: Usuarios, session:SessionDep ) -> Usuarios:
+#     session.add(usuario)
+#     session.commit()
+#     session.refresh(usuario)
+#     return usuario
+
+@app.post("/usuarios", response_model=UsuarioLista)
+def cadastrar_usu(usuario: UsuarioCriar, session: SessionDep):
+    novo = Usuarios.model_validate(usuario)
+
+    session.add(novo)
     session.commit()
-    session.refresh(usuario)
-    return usuario
+    session.refresh(novo)
+
+    return novo
 
 @app.put('/usuarios/{id}')
 def atualizar_usu(id:int, usuario:Usuarios,
@@ -104,7 +111,6 @@ def deletar_usu(id:int, session:SessionDep):
 
 # -----------------------
 # CRUD dos produtos
-# -----------------------
 
 @app.get("/produtos")
 def listar_produtos(session: SessionDep) -> list[Produtos]:
@@ -145,7 +151,6 @@ def deletar_produtos(id:int, session:SessionDep):
 
 # -----------------------
 # CRUD das categorias
-# -----------------------
 
 @app.get("/categorias")
 def listar_categorias(session: SessionDep) -> list[Categorias]:
@@ -183,7 +188,6 @@ def deletar_categorias(id:int, session:SessionDep):
 
 # -----------------------
 # CRUD das pedidos
-# -----------------------
 
 @app.get("/pedidos")
 def listar_pedidos(session: SessionDep) -> list[Pedidos]:
@@ -224,7 +228,6 @@ def deletar_pedidos(id:int, session:SessionDep):
 
 # -----------------------
 # CRUD dos pagamentos
-# -----------------------
 
 @app.get("/pagamentos")
 def listar_pagamentos(session: SessionDep) -> list[Pagamentos]:
@@ -265,7 +268,6 @@ def deletar_pagamentos(id:int, session:SessionDep):
 
 # -----------------------
 # CRUD dos enderecos
-# -----------------------
 
 @app.get("/enderecos")
 def listar_enderecos(session: SessionDep) -> list[Enderecos]:
@@ -307,7 +309,6 @@ def deletar_enderecos(id:int, session:SessionDep):
 
 # -----------------------
 # CRUD das avaliações
-# -----------------------
 
 @app.get("/avaliacoes")
 def listar_avaliacoes(session: SessionDep) -> list[Avaliacoes]:
@@ -349,7 +350,6 @@ def deletar_avaliacoes(id:int, session:SessionDep):
 
 # -----------------------
 # CRUD do estoque
-# -----------------------
 
 @app.get("/estoque")
 def listar_estoque(session: SessionDep) -> list[Estoque]:

@@ -1,6 +1,5 @@
 #-------------------------------------------
 # Seguindo a parte 1 da atividade ECommerce
-#-------------------------------------------
 
 from sqlmodel import SQLModel, Field, create_engine, Relationship
 from datetime import datetime
@@ -27,7 +26,21 @@ class Tarefa(SQLModel, table=True):
     descricao: str
     status: bool = Field(default=False)
 
+class UsuarioCriar(SQLModel):
+    nome: str
+    email: str
+    senha_hash: str
 
+
+class UsuarioLista(SQLModel):
+    id: int
+    nome: str
+    email: str
+
+    model_config = {
+        "from_attributes": True
+    }
+    
 class Usuarios(SQLModel, table=True):
     __tablename__: str = 'usuarios'
     id: Optional[int] = Field(default=None, primary_key=True)
